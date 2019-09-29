@@ -52,20 +52,20 @@ fn main() {
     let bg_white=bg.clone() + white + "m";
 
     let path_part = PromptPart {
-        fg: fg_black.clone(),
+        fg: fg_cyan.clone(),
         bg: bg_cyan.clone(),
         inverse: fg_cyan.clone(),
         text: path_parser.path(2)
     };
 
     let jobs = PromptPart {
-        fg: fg_black.clone(),
+        fg: fg_blue.clone(),
         bg: bg_blue.clone(),
         inverse: fg_blue.clone(),
         text: jobs::get_jobs()
     };
     let git = PromptPart {
-        fg: fg_cyan.clone(),
+        fg: fg_magenta.clone(),
         bg: bg_black.clone(),
         inverse: fg_black.clone(),
         text: git::get_branch()
@@ -85,19 +85,19 @@ fn main() {
         let part = &parts[i];
         match &part.text {
             Some(text) => {
-                let end_bg = if i < parts.len() - 1 {
-                    parts[i + 1].bg.clone()
-                }
-                else {
-                    String::from("\x1B[0m")
-                };
-                print!("%{{{}{}%}} {} %{{{}{}%}}\u{e0b0}",
-                       part.fg, part.bg, text, end_bg, part.inverse);
+                //let end_bg = if i < parts.len() - 1 {
+                    //parts[i + 1].bg.clone()
+                //}
+                //else {
+                    //String::from("\x1B[0m")
+                //};
+                print!("%{{{}%}} {}",
+                       part.fg, text);
             },
             None => {
                 ()
             }
         }
     }
-    print!("%{{\x1B[0m%}}\n:");
+    print!("%{{\x1B[0m%}}:");
 }
