@@ -1,26 +1,31 @@
-use std::io::BufRead;
-use std::os::unix::process::parent_id;
 use std::process::{Command, Stdio};
 
-pub fn get_jobs() -> Option<String> {
-    let ppid = parent_id().to_string();
-    let cmd = match Command::new("ps")
-        .args(&["--ppid", ppid.as_str(), "-oppid="])
+pub fn get() -> Option<String> {
+    let cmd = Command::new("ps")
         .stdout(Stdio::piped())
+        .stderr(Stdio::null())
         .output()
-        {
-            Ok(output) => output,
-            Err(err) => {
-                println!("Error getting jobs: {}", err);
-                return None
-            }
+        .expect("Failed to run 'ps'");
+
+    let num_jobs = if cmd.status.success() {
+        match String::from_utf8(cmd.stdout) {
+            Ok(out) => {
+                let jobs = out.lines().into_iter().count();
+                if jobs < 4 {
+                    0
+                } else {
+                    jobs - 4
+                }
+            },
+            Err(_) => 0
+        }
+    } else {
+        0
     };
 
-    let lines = cmd.stdout.lines().count() - 1;
-    if lines > 0 {
-        Some(lines.to_string())
-    }
-    else {
+    if num_jobs > 0 {
+        Some(num_jobs.to_string())
+    } else {
         None
     }
 }
