@@ -1,5 +1,3 @@
-//df -t fuse.sshfs --output=target | sed -s '/\//!d'
-//
 use std::env;
 use std::process::{Command, Stdio};
 
@@ -11,10 +9,12 @@ pub fn check_path() -> Option<String> {
         .output()
         .expect("sshfs failed running command");
 
-    let pwd = env::current_dir().unwrap();
+    let pwd = match env::current_dir() {
+        Ok(pwd) => pwd,
+        Err(err) => panic!("Err getting pwd: {}", err),
+    };
 
     if cmd.status.success() {
-        //print!("pwd: {}", pwd.to_string_lossy());
         let output = String::from_utf8(cmd.stdout).unwrap();
         let mut paths: Vec<&str> = output.split("\n").collect();
         paths.remove(0);

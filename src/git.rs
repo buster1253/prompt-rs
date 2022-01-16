@@ -1,12 +1,5 @@
 use std::process::{Command, Stdio};
 
-struct PromptPart2 {
-    fg: String,
-    //bg: String,
-    //inverse: String,
-    //text: Option<String>
-}
-
 trait Prompt {
     fn get(&self) -> Option<String>;
     fn new() -> Git;
@@ -20,7 +13,8 @@ struct Git {
 
 impl Prompt for Git {
     fn new() -> Git {
-            Git{fg: String::from("abc"),
+        Git {
+            fg: String::from("abc"),
             bg: String::from("def"),
             inverse: String::from("abc"),
         }
@@ -46,31 +40,25 @@ impl Prompt for Git {
     }
 }
 
-//impl Prompt for PromptPart2 {
-    //fn new(&self) -> PromptPart {
-        //return PromptPart{fg=String::from(""), bg=}
-    //}
-    //fn get(&self) -> Option<String> {
-        //Some(String::from("abc"))
-    //}
-//}
-//pub fn new(fg: String, bg: String, inverted: String) -> Prompt {
-
-//}
-
 pub fn get_branch() -> Option<String> {
-    let cmd = Command::new("git")
+    let cmd = match Command::new("git")
         .args(&["rev-parse", "--abbrev-ref", "HEAD"])
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
         .output()
-        .expect("shit");
+        {
+        Ok(output) => output,
+        Err(err) => return None
+    };
 
     if cmd.status.success() {
-        let mut output = String::from_utf8(cmd.stdout).unwrap();
-        output = output.replace("\n", "");
-        return Some(output);
-        //return Some(String::from_utf8(cmd.stdout.pop().unwrap()).unwrap());
+        match String::from_utf8(cmd.stdout) {
+            Ok(output) => return Some(output.replace("\n", "")),
+            Err(err) => {
+                println!("Error getting git status: {}", err);
+                return None
+            }
+        };
     }
     else {
         return None
